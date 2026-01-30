@@ -1,35 +1,69 @@
-from datetime import date, timedelta
-import calendar
+from PIL import Image, ImageDraw, ImageFont
+import calendar, random
 
-today = date.today()
-year = today.year
-month = today.month
+YEAR = 2026
+WIDTH, HEIGHT = 900, 1200
 
-# Get number of days in current month
-_, days_in_month = calendar.monthrange(year, month)
+# Fonts
+try:
+    TITLE = ImageFont.truetype("DejaVuSans-Bold.ttf", 44)
+    BODY = ImageFont.truetype("DejaVuSans.ttf", 26)
+except:
+    TITLE = BODY = ImageFont.load_default()
 
-menu = {}
+# Seasonal themes
+THEMES = {
+    "winter": ("#0b1d3a", "❄️"),
+    "valentine": ("#4a0f2e", "❤️"),
+    "spring": ("#1f4d2b", "🌸"),
+    "summer": ("#1e4fa1", "☀️"),
+    "fall": ("#5a2d0c", "🍂"),
+}
 
-# Day indexes
-today_day = today.day
-tomorrow_day = today_day + 1
+MONTH_THEME = {
+    1: "winter", 2: "valentine", 3: "spring", 4: "spring",
+    5: "spring", 6: "summer", 7: "summer", 8: "summer",
+    9: "fall", 10: "fall", 11: "fall", 12: "winter"
+}
 
-for day in range(1, days_in_month + 1):
-    menu[day] = "TBD"
+def decorate(draw, bg):
+    for _ in range(350):
+        x = random.randint(0, WIDTH)
+        y = random.randint(0, HEIGHT)
+        r = random.randint(1, 3)
+        draw.ellipse((x, y, x + r, y + r), fill="white")
 
-# Apply rules
-menu[today_day] = "Chicken Nuggets"
-if today_day + 1 <= days_in_month:
-    menu[today_day + 1] = "Pizza"
-if today_day + 2 <= days_in_month:
-    menu[today_day + 2] = "Pizza"
+def generate_month(year, month):
+    theme = THEMES[MONTH_THEME[month]]
+    img = Image.new("RGB", (WIDTH, HEIGHT), theme[0])
+    draw = ImageDraw.Draw(img)
+    decorate(draw, theme[0])
 
-# Second day of chicken nuggets (after pizza if possible)
-second_nugget_day = today_day + 3
-if second_nugget_day <= days_in_month:
-    menu[second_nugget_day] = "Chicken Nuggets"
+    month_name = calendar.month_name[month]
+    draw.text((WIDTH//2 - 260, 30),
+              f"{month_name} {year} Dinner Menu {theme[1]}",
+              fill="white", font=TITLE)
 
-# Output
-print(f"Dinner Menu for {calendar.month_name[month]} {year}\n")
-for day in range(1, days_in_month + 1):
-    print(f"{month:02d}/{day:02d}: {menu[day]}")
+    _, days = calendar.monthrange(year, month)
+    menu = {d: "TBD" for d in range(1, days + 1)}
+
+    # Fixed rules
+    if month == 1:
+        menu[29] = "🍗 Chicken Nuggets"
+        menu[30] = "🍗 Chicken Nuggets"
+        menu[31] = "🍕 Pizza"
+    if month == 2:
+        menu[1] = "🍕 Pizza"
+
+    y = 120
+    for d in range(1, days + 1):
+        draw.text((80, y),
+                  f"{month_name[:3]} {d:02d}: {menu[d]}",
+                  fill="white", font=BODY)
+        y += 30
+
+    img.show()
+
+# Generate all months
+for m in range(1, 13):
+    generate_month(YEAR, m)
