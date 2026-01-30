@@ -1,0 +1,39 @@
+name: Generate Monthly Dinner Menu
+
+on:
+  schedule:
+    # Runs at 00:00 UTC on the 1st of every month
+    - cron: '0 0 1 * *'
+  workflow_dispatch:  # allows manual trigger
+
+jobs:
+  generate-month:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Generate current month menu
+      run: |
+        python generate_menu_current_month.py
+
+    - name: Commit generated image
+      run: |
+        git config user.name "jacefink2-eng"
+        git config user.email "jacefink2@gmail.com"
+        git add images/*.png
+        git commit -m "Auto-generate dinner menu for current month" || echo "No changes to commit"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
