@@ -36,4 +36,6 @@ jobs:
         git commit -m "Auto-generate dinner menu for current month" || echo "No changes to commit"
         git push
       env:
-        GITHUB_TOKEN: ${{ secrets.MENU_TOKEN }}
+        MENU_TOKEN: ${{ secrets.MENU_TOKEN }}
+
+
