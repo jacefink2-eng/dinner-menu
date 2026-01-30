@@ -70,7 +70,7 @@ def generate_current_month(folder="images"):
         y += 30
 
     # Save only the current month
-    file_path = os.path.join(folder, f"{month_name}_{YEAR}.png")
+    file_path = os.path.join(folder, f"menu.png")
     img.save(file_path)
     print(f"Saved current month image: {file_path}")
 
