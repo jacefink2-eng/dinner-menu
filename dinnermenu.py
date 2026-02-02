@@ -5,7 +5,8 @@ from datetime import date
 # ---------- CONFIG ----------
 WIDTH, HEIGHT = 900, 1200
 YEAR = date.today().year
-MONTH = date.today().month  # Current month only
+MONTH = date.today().month
+LINE_HEIGHT = 32
 
 # ---------- Fonts ----------
 try:
@@ -37,40 +38,69 @@ def decorate(draw):
         r = random.randint(1, 3)
         draw.ellipse((x, y, x+r, y+r), fill="white")
 
+def draw_centered_text(draw, text, y, font):
+    w = draw.textlength(text, font=font)
+    draw.text(((WIDTH - w) // 2, y), text, fill="white", font=font)
+
+def draw_wrapped_text(draw, x, y, text, font, max_width=55):
+    import textwrap
+    for line in textwrap.wrap(text, max_width):
+        draw.text((x, y), line, fill="white", font=font)
+        y += LINE_HEIGHT
+    return y
+
 # ---------- Generate current month image ----------
 def generate_current_month(folder="images"):
     os.makedirs(folder, exist_ok=True)
 
-    theme = THEMES[MONTH_THEME[MONTH]]
-    img = Image.new("RGB", (WIDTH, HEIGHT), theme[0])
+    theme_name = MONTH_THEME[MONTH]
+    bg_color, emoji = THEMES[theme_name]
+
+    img = Image.new("RGB", (WIDTH, HEIGHT), bg_color)
     draw = ImageDraw.Draw(img)
     decorate(draw)
 
     month_name = calendar.month_name[MONTH]
-    draw.text((WIDTH//2 - 260, 30),
-              f"{month_name} {YEAR} Dinner Menu {theme[1]}",
-              fill="white", font=TITLE)
+    draw_centered_text(
+        draw,
+        f"{month_name} {YEAR} Dinner Menu {emoji}",
+        30,
+        TITLE
+    )
 
     _, days = calendar.monthrange(YEAR, MONTH)
-    menu = {d: "TBD" for d in range(1, days+1)}
+    menu = {}
 
-    # Fixed meals example for Jan/Feb 2026
-    if YEAR == 2026 and MONTH == 1:
-        menu[29] = "🍗 Chicken Nuggets"
-        menu[30] = "🍗 Chicken Nuggets"
-        menu[31] = "🍕 Pizza"
-    if YEAR == 2026 and MONTH == 2:
-        menu[1] = "🍕 Pizza"
+    # ---------- Meal assignment ----------
+    MEALS = ["🍕 Pizza", "🍗 Chicken Nuggets"]
 
+    for d in range(1, days + 1):
+        # Special 2/2 pattern for Feb 2026 after Feb 1
+        if YEAR == 2026 and MONTH == 2 and d >= 2:
+            cycle_day = (d - 2) % 4  # 4-day loop
+            if cycle_day < 2:
+                menu[d] = "🍗 Chicken Nuggets"
+            else:
+                menu[d] = "🍕 Pizza"
+        # Special fixed meals for Jan 2026
+        elif YEAR == 2026 and MONTH == 1:
+            if d == 29 or d == 30:
+                menu[d] = "🍗 Chicken Nuggets"
+            elif d == 31:
+                menu[d] = "🍕 Pizza"
+            else:
+                menu[d] = random.choice(MEALS)
+        else:
+            menu[d] = random.choice(MEALS)
+
+    # ---------- Draw menu ----------
     y = 120
-    for d in range(1, days+1):
-        draw.text((80, y),
-                  f"{month_name[:3]} {d:02d}: {menu[d]}",
-                  fill="white", font=BODY)
-        y += 30
+    for d in range(1, days + 1):
+        label = f"{month_name[:3]} {d:02d}: {menu[d]}"
+        y = draw_wrapped_text(draw, 80, y, label, BODY)
 
-    # Save only the current month
-    file_path = os.path.join(folder, f"menu.png")
+    # ---------- Save ----------
+    file_path = os.path.join(folder, "menu.png")
     img.save(file_path)
     print(f"Saved current month image: {file_path}")
 
