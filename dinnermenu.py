@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-import calendar, random, os
+import calendar, os
 from datetime import date
 
 # ---------- CONFIG ----------
@@ -33,6 +33,7 @@ MONTH_THEME = {
 # ---------- Helpers ----------
 def decorate(draw):
     for _ in range(400):
+        import random
         x = random.randint(0, WIDTH)
         y = random.randint(0, HEIGHT)
         r = random.randint(1, 3)
@@ -72,26 +73,34 @@ def generate_current_month(folder="images"):
     menu = {}
 
     # ---------- Meal assignment ----------
-    MEALS = ["🍕 Pizza", "🍗 Chicken Nuggets"]
-
+    # Deterministic 2/2 pattern
     for d in range(1, days + 1):
-        # Special 2/2 pattern for Feb 2026 after Feb 1
-        if YEAR == 2026 and MONTH == 2 and d >= 2:
-            cycle_day = (d - 2) % 4  # 4-day loop
-            if cycle_day < 2:
-                menu[d] = "🍗 Chicken Nuggets"
+        # ---------- February 2026 ----------
+        if YEAR == 2026 and MONTH == 2:
+            if d == 1:
+                menu[d] = "🍕 Pizza"  # Feb 1 fixed
             else:
-                menu[d] = "🍕 Pizza"
-        # Special fixed meals for Jan 2026
+                cycle_day = (d - 2) % 4  # 4-day loop starts Feb 2
+                if cycle_day < 2:
+                    menu[d] = "🍗 Chicken Nuggets"
+                else:
+                    menu[d] = "🍕 Pizza"
+        # ---------- January 2026 fixed meals ----------
         elif YEAR == 2026 and MONTH == 1:
-            if d == 29 or d == 30:
+            if d in [29, 30]:
                 menu[d] = "🍗 Chicken Nuggets"
             elif d == 31:
                 menu[d] = "🍕 Pizza"
             else:
-                menu[d] = random.choice(MEALS)
+                menu[d] = "🍕 Pizza"  # deterministic default for Jan 1–28
+        # ---------- All other months ----------
         else:
-            menu[d] = random.choice(MEALS)
+            # 2/2 alternating deterministic pattern starting with Pizza
+            cycle_day = (d - 1) % 4
+            if cycle_day < 2:
+                menu[d] = "🍕 Pizza"
+            else:
+                menu[d] = "🍗 Chicken Nuggets"
 
     # ---------- Draw menu ----------
     y = 120
