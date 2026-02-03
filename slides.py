@@ -7,7 +7,7 @@ from google.auth.transport.requests import Request
 
 # ---------- Config ----------
 SCOPES = ['https://www.googleapis.com/auth/presentations']
-PRESENTATION_ID = 'YOUR_PRESENTATION_ID_HERE'  # Replace with your Slides ID
+PRESENTATION_ID = '2'  # Replace with your Slides ID
 SLIDE_INDEX = 1  # Slide 2 (0-based index)
 IMAGE_URL = 'https://example.com/menu.png'  # Replace with your hosted menu image URL
 
