@@ -35,4 +35,4 @@ jobs:
 
       # Run Python script
       - name: Run menu updater
-        run: python dinnermenu.py | python slides.py
+        run: python dinnermenu.py
