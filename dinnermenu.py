@@ -1,117 +1,130 @@
-from PIL import Image, ImageDraw, ImageFont
-import calendar, os
+import os
+import json
+import calendar
 from datetime import date
+from PIL import Image, ImageDraw, ImageFont
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from google.oauth2.service_account import Credentials
 
-# ---------- CONFIG ----------
+# ---------------- CONFIG ----------------
 WIDTH, HEIGHT = 900, 1200
-YEAR = date.today().year
-MONTH = date.today().month
 LINE_HEIGHT = 32
+SLIDE_INDEX = 1  # Slide 2
+MENU_IMAGE_PATH = "menu.png"
+PRESENTATION_ID = "YOUR_PRESENTATION_ID_HERE"  # Replace with your Slides ID
 
-# ---------- Fonts ----------
+# ---------------- Fonts ----------------
 try:
     TITLE = ImageFont.truetype("DejaVuSans-Bold.ttf", 44)
     BODY = ImageFont.truetype("DejaVuSans.ttf", 26)
 except:
     TITLE = BODY = ImageFont.load_default()
 
-# ---------- Themes ----------
-THEMES = {
-    "winter": ("#0b1d3a", "❄️"),
-    "valentine": ("#4a0f2e", "❤️"),
-    "spring": ("#1f4d2b", "🌸"),
-    "summer": ("#1e4fa1", "☀️"),
-    "fall": ("#5a2d0c", "🍂"),
-}
+# ---------------- Generate menu image ----------------
+def generate_menu_image(path=MENU_IMAGE_PATH):
+    today = date.today()
+    year = today.year
+    month = today.month
 
-MONTH_THEME = {
-    1: "winter", 2: "valentine", 3: "spring", 4: "spring",
-    5: "spring", 6: "summer", 7: "summer", 8: "summer",
-    9: "fall", 10: "fall", 11: "fall", 12: "winter"
-}
-
-# ---------- Helpers ----------
-def decorate(draw):
-    for _ in range(400):
-        import random
-        x = random.randint(0, WIDTH)
-        y = random.randint(0, HEIGHT)
-        r = random.randint(1, 3)
-        draw.ellipse((x, y, x+r, y+r), fill="white")
-
-def draw_centered_text(draw, text, y, font):
-    w = draw.textlength(text, font=font)
-    draw.text(((WIDTH - w) // 2, y), text, fill="white", font=font)
-
-def draw_wrapped_text(draw, x, y, text, font, max_width=55):
-    import textwrap
-    for line in textwrap.wrap(text, max_width):
-        draw.text((x, y), line, fill="white", font=font)
-        y += LINE_HEIGHT
-    return y
-
-# ---------- Generate current month image ----------
-def generate_current_month(folder="images"):
-    os.makedirs(folder, exist_ok=True)
-
-    theme_name = MONTH_THEME[MONTH]
-    bg_color, emoji = THEMES[theme_name]
-
-    img = Image.new("RGB", (WIDTH, HEIGHT), bg_color)
+    img = Image.new("RGB", (WIDTH, HEIGHT), "#4a0f2e")  # Valentine/fallback theme
     draw = ImageDraw.Draw(img)
-    decorate(draw)
 
-    month_name = calendar.month_name[MONTH]
-    draw_centered_text(
-        draw,
-        f"{month_name} {YEAR} Dinner Menu {emoji}",
-        30,
-        TITLE
-    )
+    # Title
+    month_name = calendar.month_name[month]
+    title_text = f"{month_name} {year} Dinner Menu ❤️"
+    draw.text(((WIDTH - draw.textlength(title_text, TITLE)) // 2, 30), title_text, fill="white", font=TITLE)
 
-    _, days = calendar.monthrange(YEAR, MONTH)
+    # Menu: Pizza / Chicken Nuggets 2/2 cycle
+    _, days = calendar.monthrange(year, month)
     menu = {}
-
-    # ---------- Meal assignment ----------
-    # Deterministic 2/2 pattern
     for d in range(1, days + 1):
-        # ---------- February 2026 ----------
-        if YEAR == 2026 and MONTH == 2:
-            if d == 1:
-                menu[d] = "🍕 Pizza"  # Feb 1 fixed
-            else:
-                cycle_day = (d - 2) % 4  # 4-day loop starts Feb 2
-                if cycle_day < 2:
-                    menu[d] = "🍗 Chicken Nuggets"
-                else:
-                    menu[d] = "🍕 Pizza"
-        # ---------- January 2026 fixed meals ----------
-        elif YEAR == 2026 and MONTH == 1:
-            if d in [29, 30]:
-                menu[d] = "🍗 Chicken Nuggets"
-            elif d == 31:
-                menu[d] = "🍕 Pizza"
-            else:
-                menu[d] = "🍕 Pizza"  # deterministic default for Jan 1–28
-        # ---------- All other months ----------
+        if d == 1:
+            menu[d] = "🍕 Pizza"
         else:
-            # 2/2 alternating deterministic pattern starting with Pizza
-            cycle_day = (d - 1) % 4
-            if cycle_day < 2:
-                menu[d] = "🍕 Pizza"
-            else:
-                menu[d] = "🍗 Chicken Nuggets"
+            cycle_day = (d - 2) % 4
+            menu[d] = "🍗 Chicken Nuggets" if cycle_day < 2 else "🍕 Pizza"
 
-    # ---------- Draw menu ----------
+    # Draw menu
     y = 120
     for d in range(1, days + 1):
-        label = f"{month_name[:3]} {d:02d}: {menu[d]}"
-        y = draw_wrapped_text(draw, 80, y, label, BODY)
+        text = f"{month_name[:3]} {d:02d}: {menu[d]}"
+        draw.text((80, y), text, fill="white", font=BODY)
+        y += LINE_HEIGHT
 
-    # ---------- Save ----------
-    file_path = os.path.join(folder, "menu.png")
-    img.save(file_path)
-    print(f"Saved current month image: {file_path}")
+    img.save(path)
+    print(f"Saved menu image: {path}")
 
-# ---------- Run ----------
-generate_current_month()
+# ---------------- Authenticate service account ----------------
+def get_service_account_credentials():
+    client_secrets_json = os.environ.get("CLIENT_SECRETS_JSON")
+    if not client_secrets_json:
+        raise Exception("Environment variable CLIENT_SECRETS_JSON not set!")
+
+    sa_info = json.loads(client_secrets_json)
+    scopes = [
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/presentations'
+    ]
+    creds = Credentials.from_service_account_info(sa_info, scopes=scopes)
+    return creds
+
+# ---------------- Upload image to Google Drive and get public URL ----------------
+def upload_to_drive(file_path, creds):
+    drive_service = build('drive', 'v3', credentials=creds)
+    file_metadata = {'name': os.path.basename(file_path)}
+    media = MediaFileUpload(file_path, mimetype='image/png', resumable=True)
+
+    # Upload
+    uploaded_file = drive_service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields='id'
+    ).execute()
+
+    # Make public
+    drive_service.permissions().create(
+        fileId=uploaded_file['id'],
+        body={'type': 'anyone', 'role': 'reader'}
+    ).execute()
+
+    # Public URL
+    public_url = f"https://drive.google.com/uc?id={uploaded_file['id']}"
+    print(f"Uploaded menu image to Drive: {public_url}")
+    return public_url
+
+# ---------------- Update Google Slides ----------------
+def update_slide_with_image(service, image_url):
+    presentation = service.presentations().get(presentationId=PRESENTATION_ID).execute()
+    slides = presentation.get('slides')
+    slide_id = slides[SLIDE_INDEX]['objectId']
+
+    # Delete existing elements
+    requests_list = [{'deleteObject': {'objectId': e['objectId']}} for e in slides[SLIDE_INDEX]['pageElements']]
+
+    # Insert new image using public URL
+    requests_list.append({
+        'createImage': {
+            'url': image_url,
+            'elementProperties': {
+                'pageObjectId': slide_id,
+                'size': {'height': {'magnitude': 600, 'unit': 'PT'},
+                         'width': {'magnitude': 450, 'unit': 'PT'}},
+                'transform': {'scaleX': 1, 'scaleY': 1, 'translateX': 50, 'translateY': 50, 'unit': 'PT'}
+            }
+        }
+    })
+
+    service.presentations().batchUpdate(
+        presentationId=PRESENTATION_ID,
+        body={'requests': requests_list}
+    ).execute()
+    print(f"Slide {SLIDE_INDEX + 1} updated with menu image URL.")
+
+# ---------------- Main ----------------
+if __name__ == "__main__":
+    generate_menu_image()
+    creds = get_service_account_credentials()
+    public_url = upload_to_drive(MENU_IMAGE_PATH, creds)
+    slides_service = build('slides', 'v1', credentials=creds)
+    update_slide_with_image(slides_service, public_url)
