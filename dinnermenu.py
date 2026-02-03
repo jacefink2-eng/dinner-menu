@@ -36,7 +36,7 @@ def decorate(draw):
         x = random.randint(0, WIDTH)
         y = random.randint(0, HEIGHT)
         r = random.randint(1, 3)
-        draw.ellipse((x, y, x+r, y+r), fill="white")
+        draw.ellipse((x, y, x + r, y + r), fill="white")
 
 def draw_centered_text(draw, text, y, font):
     w = draw.textlength(text, font=font)
@@ -74,15 +74,30 @@ def generate_current_month(folder="images"):
     # ---------- Meal assignment ----------
     MEALS = ["🍕 Pizza", "🍗 Chicken Nuggets"]
 
+    pattern_index = 0  # keeps the 2/2 pattern continuous
+
     for d in range(1, days + 1):
-        # Special 2/2 pattern for Feb 2026 after Feb 1
-        if YEAR == 2026 and MONTH == 2 and d >= 2:
-            cycle_day = (d - 2) % 4  # 4-day loop
-            if cycle_day < 2:
-                menu[d] = "🍗 Chicken Nuggets"
+
+        # ----- February 2026 rules -----
+        if YEAR == 2026 and MONTH == 2:
+
+            # Feb 9 is always spaghetti
+            if d == 9:
+                menu[d] = "🍝 Spaghetti"
+                continue
+
+            # Start 2/2 pattern on Feb 2
+            if d >= 2:
+                cycle_day = pattern_index % 4
+                if cycle_day < 2:
+                    menu[d] = "🍗 Chicken Nuggets"
+                else:
+                    menu[d] = "🍕 Pizza"
+                pattern_index += 1
             else:
-                menu[d] = "🍕 Pizza"
-        # Special fixed meals for Jan 2026
+                menu[d] = random.choice(MEALS)
+
+        # ----- January 2026 rules -----
         elif YEAR == 2026 and MONTH == 1:
             if d == 29 or d == 30:
                 menu[d] = "🍗 Chicken Nuggets"
@@ -90,6 +105,8 @@ def generate_current_month(folder="images"):
                 menu[d] = "🍕 Pizza"
             else:
                 menu[d] = random.choice(MEALS)
+
+        # ----- Default behavior -----
         else:
             menu[d] = random.choice(MEALS)
 
