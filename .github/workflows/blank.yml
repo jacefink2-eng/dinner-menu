@@ -33,4 +33,4 @@ jobs:
 
     # 5️⃣ Run your Python script
     - name: Run menu updater
-      run: python update_menu_slide.py
+      run: python dinnermenu.py | python slides.py
