@@ -1,42 +1,36 @@
-name: Generate Monthly Dinner Menu
+name: Update Google Slides Menu
 
 on:
+  workflow_dispatch:  # manual trigger
   schedule:
-    # Runs at 00:00 UTC on the 1st of every month
-    - cron: '0 0 1 * *'
-  workflow_dispatch:  # allows manual trigger
+    # Run at 07:00 UTC on the 1st day of every month
+    - cron: '0 7 1 * *'
 
 jobs:
-  generate-month:
+  update_slide:
     runs-on: ubuntu-latest
 
     steps:
+    # 1️⃣ Checkout the repository
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    # 2️⃣ Setup Python
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
+        python-version: '3.11'
 
+    # 3️⃣ Install dependencies
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Generate current month menu
-      run: |
-        python dinnermenu.py
-        python slides.py
+    # 4️⃣ Set CLIENT_SECRETS_JSON from GitHub Secret
+    - name: Set environment variable
+      run: echo "CLIENT_SECRETS_JSON=${{ secrets.CLIENT_SECRETS_JSON }}" >> $GITHUB_ENV
 
-    - name: Commit generated image
-      run: |
-        git config user.name "jacefink2-eng"
-        git config user.email "jacefink2@gmail.com"
-        git add images/*.png
-        git commit -m "Auto-generate dinner menu for current month" || echo "No changes to commit"
-        git push
-      env:
-        MENU_TOKEN: ${{ secrets.MENU_TOKEN }}
-
-
+    # 5️⃣ Run your Python script
+    - name: Run menu updater
+      run: python update_menu_slide.py
