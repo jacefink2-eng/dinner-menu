@@ -27,6 +27,7 @@ jobs:
     - name: Generate current month menu
       run: |
         python dinnermenu.py
+        python slides.py
 
     - name: Commit generated image
       run: |
