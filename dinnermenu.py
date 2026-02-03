@@ -11,8 +11,8 @@ from google.oauth2.service_account import Credentials
 WIDTH, HEIGHT = 900, 1200
 LINE_HEIGHT = 32
 SLIDE_INDEX = 1  # Slide 2
-MENU_IMAGE_PATH = "menu.png"
-PRESENTATION_ID = "YOUR_PRESENTATION_ID_HERE"  # Replace with your Slides ID
+MENU_IMAGE_PATH = "https://jacefink2-eng.github.io/dinner-menu/images/menu.png"
+PRESENTATION_ID = "2"  # Replace with your Slides ID
 
 # ---------------- Fonts ----------------
 try:
