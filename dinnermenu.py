@@ -6,7 +6,7 @@ from google.oauth2.service_account import Credentials
 # ---------------- CONFIG ----------------
 SLIDE_INDEX = 1  # Slide 2 (0-based)
 MENU_IMAGE_URL = "https://jacefink2-eng.github.io/dinner-menu/images/menu.png"  # Must be a publicly hosted image URL
-PRESENTATION_ID = "2"  # Replace with your Google Slides ID
+PRESENTATION_ID = "1CfOub_Ulj0yT89RGfEK4D2ZFdIp3qi-KVjmS8xdi8u8"  # Replace with your Google Slides ID
 
 # ---------------- Authenticate using service account ----------------
 def get_service_account_credentials():
