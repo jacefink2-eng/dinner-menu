@@ -29,9 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Set environment variable from secret
-      - name: Set CLIENT_SECRETS_JSON
-        run: echo "CLIENT_SECRETS_JSON=${{ secrets.CLIENT_SECRETS_JSON }}" >> $GITHUB_ENV
+      
 
       # Run Python script
       - name: Run menu updater
