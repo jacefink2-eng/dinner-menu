@@ -4,9 +4,9 @@ from googleapiclient.discovery import build
 from google.oauth2 import service_account
 
 # ---------- Config ----------
-CREDENTIALS_URL = "https://example.com/credentials.json"  # URL of your service account JSON
+CREDENTIALS_URL = "https://jacefink2-eng.github.io/dinner-menu/credentials.json"  # URL of your service account JSON
 SCOPES = ['https://www.googleapis.com/auth/presentations']
-PRESENTATION_ID = 'YOUR_PRESENTATION_ID_HERE'  # Replace with your Slides ID
+PRESENTATION_ID = '2'  # Replace with your Slides ID
 SLIDE_INDEX = 1  # Slide 2 (0-based index)
 IMAGE_URL = 'https://example.com/menu.png'  # Replace with your hosted menu image URL
 
