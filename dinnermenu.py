@@ -84,7 +84,12 @@ def generate_current_month(folder="images"):
             if d == 1:
                 menu[d] = "🍕 Pizza"
 
-            # Feb 9 special — pause cycle
+            # Feb 4 special — hamburger
+            elif d == 4:
+                menu[d] = "🍔 Hamburger"
+                pattern_index = 0  # reset pattern after special
+
+            # Feb 9 special — spaghetti (pause)
             elif d == 9:
                 menu[d] = "🍝 Spaghetti"
 
@@ -92,11 +97,9 @@ def generate_current_month(folder="images"):
             elif d >= 2:
                 # Determine cycle_day using pattern_index
                 cycle_day = pattern_index % 4
-
-                # After Feb 9, resume as 2nd day of next cycle
                 menu[d] = "🍗 Chicken Nuggets" if cycle_day < 2 else "🍕 Pizza"
 
-                # Only advance pattern_index on normal cycle days (skip Feb 9)
+                # Only advance pattern_index on normal cycle days (skip special days)
                 pattern_index += 1
 
         # ----- January 2026 rules -----
