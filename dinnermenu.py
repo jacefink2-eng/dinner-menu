@@ -104,7 +104,7 @@ def generate_current_month(folder="images"):
 
             elif d == 9:
                 menu[d] = "🍝 Spaghetti"  # pause, do not advance pattern
-                pattern_index = 0
+                pattern_index = 2
 
             else:
                 # resume normal 2/2 pattern using pattern_index
