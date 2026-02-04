@@ -97,7 +97,7 @@ def generate_current_month(folder="images"):
             elif d >= 2:
                 # Determine cycle_day using pattern_index
                 cycle_day = pattern_index % 4
-                menu[d] = "🍗 Chicken Nuggets" if cycle_day < 2 else "🍕 Pizza"
+                menu[d] = "🍕 Pizza" if cycle_day < 2 else "🍗 Chicken Nuggets"
 
                 # Only advance pattern_index on normal cycle days (skip special days)
                 pattern_index += 1
