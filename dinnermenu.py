@@ -72,7 +72,6 @@ def generate_current_month(folder="images"):
     menu = {}
 
     # ---------- Meal assignment ----------
-    MEALS = ["🍕 Pizza", "🍗 Chicken Nuggets"]
     pattern_index = 0  # tracks 2 nuggets / 2 pizza pattern
 
     for d in range(1, days + 1):
@@ -80,26 +79,38 @@ def generate_current_month(folder="images"):
         # ----- February 2026 rules -----
         if YEAR == 2026 and MONTH == 2:
 
-            # Feb 1 always pizza
             if d == 1:
                 menu[d] = "🍕 Pizza"
 
-            # Feb 4 special — hamburger
+            elif d == 2 or d == 3:
+                # normal 2/2 pattern
+                if pattern_index % 4 < 2:
+                    menu[d] = "🍗 Chicken Nuggets"
+                else:
+                    menu[d] = "🍕 Pizza"
+                pattern_index += 1
+
             elif d == 4:
                 menu[d] = "🍔 Hamburger"
-                pattern_index = 0  # reset pattern after special
+                pattern_index = 0  # reset cycle after special
 
-            # Feb 9 special — spaghetti (pause)
+            elif d == 5 or d == 6:
+                menu[d] = "🍕 Pizza"
+                pattern_index += 2  # counts as first 2 days of 2/2
+
+            elif d == 7 or d == 8:
+                menu[d] = "🍗 Chicken Nuggets"
+                pattern_index += 2  # counts as next 2 days of 2/2
+
             elif d == 9:
-                menu[d] = "🍝 Spaghetti"
+                menu[d] = "🍝 Spaghetti"  # pause, do not advance pattern
 
-            # Normal cycle days
-            elif d >= 2:
-                # Determine cycle_day using pattern_index
-                cycle_day = pattern_index % 4
-                menu[d] = "🍕 Pizza" if cycle_day < 2 else "🍗 Chicken Nuggets"
-
-                # Only advance pattern_index on normal cycle days (skip special days)
+            else:
+                # resume normal 2/2 pattern using pattern_index
+                if pattern_index % 4 < 2:
+                    menu[d] = "🍗 Chicken Nuggets"
+                else:
+                    menu[d] = "🍕 Pizza"
                 pattern_index += 1
 
         # ----- January 2026 rules -----
@@ -109,11 +120,11 @@ def generate_current_month(folder="images"):
             elif d == 31:
                 menu[d] = "🍕 Pizza"
             else:
-                menu[d] = random.choice(MEALS)
+                menu[d] = random.choice(["🍕 Pizza", "🍗 Chicken Nuggets"])
 
         # ----- Default behavior -----
         else:
-            menu[d] = random.choice(MEALS)
+            menu[d] = random.choice(["🍕 Pizza", "🍗 Chicken Nuggets"])
 
     # ---------- Draw menu ----------
     y = 120
