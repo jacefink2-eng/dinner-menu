@@ -73,7 +73,6 @@ def generate_current_month(folder="images"):
 
     # ---------- Meal assignment ----------
     MEALS = ["🍕 Pizza", "🍗 Chicken Nuggets"]
-
     pattern_index = 0  # keeps the 2/2 pattern continuous
 
     for d in range(1, days + 1):
@@ -81,21 +80,23 @@ def generate_current_month(folder="images"):
         # ----- February 2026 rules -----
         if YEAR == 2026 and MONTH == 2:
 
-            # Feb 9 is always spaghetti
-            if d == 9:
-                menu[d] = "🍝 Spaghetti"
-                continue
+            # Feb 1 is always pizza
+            if d == 1:
+                menu[d] = "🍕 Pizza"
 
-            # Start 2/2 pattern on Feb 2
-            if d >= 2:
+            elif d >= 2:
                 cycle_day = pattern_index % 4
-                if cycle_day < 2:
-                    menu[d] = "🍗 Chicken Nuggets"
+
+                # Feb 9 is spaghetti but still counts in pattern order
+                if d == 9:
+                    menu[d] = "🍝 Spaghetti"
                 else:
-                    menu[d] = "🍕 Pizza"
+                    if cycle_day < 2:
+                        menu[d] = "🍗 Chicken Nuggets"
+                    else:
+                        menu[d] = "🍕 Pizza"
+
                 pattern_index += 1
-            else:
-                menu[d] = random.choice(MEALS)
 
         # ----- January 2026 rules -----
         elif YEAR == 2026 and MONTH == 1:
