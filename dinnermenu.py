@@ -73,7 +73,7 @@ def generate_current_month(folder="images"):
 
     # ---------- Meal assignment ----------
     MEALS = ["🍕 Pizza", "🍗 Chicken Nuggets"]
-    pattern_index = 0  # 2 nuggets / 2 pizza
+    pattern_index = 0  # tracks 2 nuggets / 2 pizza pattern
 
     for d in range(1, days + 1):
 
@@ -90,11 +90,13 @@ def generate_current_month(folder="images"):
 
             # Normal cycle days
             elif d >= 2:
+                # Determine cycle_day using pattern_index
                 cycle_day = pattern_index % 4
-                if cycle_day < 2:
-                    menu[d] = "🍗 Chicken Nuggets"
-                else:
-                    menu[d] = "🍕 Pizza"
+
+                # After Feb 9, resume as 2nd day of next cycle
+                menu[d] = "🍗 Chicken Nuggets" if cycle_day < 2 else "🍕 Pizza"
+
+                # Only advance pattern_index on normal cycle days (skip Feb 9)
                 pattern_index += 1
 
         # ----- January 2026 rules -----
