@@ -6,6 +6,8 @@ from datetime import date
 WIDTH, HEIGHT = 900, 1200
 YEAR = date.today().year
 MONTH = date.today().month
+TODAY = date.today()
+
 LINE_HEIGHT = 32
 
 # ---------- Fonts ----------
@@ -67,22 +69,26 @@ def generate_current_month(folder="images"):
 
     menu = {}
 
-    # ---------- SIMPLE PATTERN ----------
-    # Day 1 = Pizza
-    # Days 2–3 = Nuggets
-    # Days 4 = Pizza
-    # Days 5–6 = Nuggets
-    # repeat
+    # ---------- ALIGNMENT FIX ----------
+    # Force April 21, 2026 to be:
+    # → Pizza (2nd day of pizza block)
 
+    anchor_day = 21  # April 21
+    target_date = date(2026, 4, 21)
+
+    # compute offset so pattern aligns correctly
+    base_index = (anchor_day - 1)
+    offset = (1 - base_index) % 4
+    # ensures: (d-1+offset) % 4 == 1 on April 21
+
+    # ---------- PATTERN ----------
     for d in range(1, days + 1):
-        if d == 1:
+        x = (d - 1 + offset) % 4
+
+        if x in (0, 1):
             menu[d] = "🍕 Pizza"
         else:
-            chunk = (d - 2) // 2
-            if chunk % 2 == 0:
-                menu[d] = "🍗 Chicken Nuggets"
-            else:
-                menu[d] = "🍕 Pizza"
+            menu[d] = "🍗 Chicken Nuggets"
 
     # ---------- Draw ----------
     y = 120
