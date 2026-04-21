@@ -49,7 +49,7 @@ def draw_wrapped_text(draw, x, y, text, font, max_width=55):
         y += LINE_HEIGHT
     return y
 
-# ---------- Generate current month image ----------
+# ---------- Generate ----------
 def generate_current_month(folder="images"):
     os.makedirs(folder, exist_ok=True)
 
@@ -61,71 +61,30 @@ def generate_current_month(folder="images"):
     decorate(draw)
 
     month_name = calendar.month_name[MONTH]
-    draw_centered_text(
-        draw,
-        f"{month_name} {YEAR} Dinner Menu {emoji}",
-        30,
-        TITLE
-    )
+    draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", 30, TITLE)
 
     _, days = calendar.monthrange(YEAR, MONTH)
+
     menu = {}
 
-    # ---------- Meal assignment ----------
+    # ---------- SIMPLE PATTERN ----------
+    # Day 1 = Pizza
+    # Days 2–3 = Nuggets
+    # Days 4 = Pizza
+    # Days 5–6 = Nuggets
+    # repeat
+
     for d in range(1, days + 1):
-
-        # ----- January 2026 rules -----
-        if YEAR == 2026 and MONTH == 1:
-            if d == 29 or d == 30:
-                menu[d] = "🍗 Chicken Nuggets"
-            elif d == 31:
-                menu[d] = "🍕 Pizza"
-            else:
-                chunk = (d - 2) // 2
-                menu[d] = "🍗 Chicken Nuggets" if chunk % 2 == 0 else "🍕 Pizza"
-
-        # ----- February 2026 rules (your custom logic stays) -----
-        elif YEAR == 2026 and MONTH == 2:
-            pattern_index = 0
-
-            if d == 1:
-                menu[d] = "🍕 Pizza"
-
-            elif d == 2 or d == 3:
-                if pattern_index % 4 < 2:
-                    menu[d] = "🍗 Chicken Nuggets"
-                else:
-                    menu[d] = "🍕 Pizza"
-                pattern_index += 1
-
-            elif d == 4:
-                menu[d] = "🍔 Hamburger"
-                pattern_index = 0
-
-            elif d == 5 or d == 6:
-                menu[d] = "🍕 Pizza"
-                pattern_index += 2
-
-            elif d == 7 or d == 8:
-                menu[d] = "🍗 Chicken Nuggets"
-                pattern_index += 2
-
-            elif d == 9:
-                menu[d] = "🍝 Spaghetti"
-
-            else:
-                chunk = (d - 10) // 2
-                menu[d] = "🍗 Chicken Nuggets" if chunk % 2 == 0 else "🍕 Pizza"
-
-        # ----- Default behavior (ALL OTHER MONTHS) -----
+        if d == 1:
+            menu[d] = "🍕 Pizza"
         else:
-            if d == 1:
-                menu[d] = "🍕 Pizza"
+            chunk = (d - 2) // 2
+            if chunk % 2 == 0:
+                menu[d] = "🍗 Chicken Nuggets"
             else:
-                chunk = (d - 2) // 2
-                menu[d] = "🍗 Chicken Nuggets" if chunk % 2 == 0 else "🍕 Pizza"
+                menu[d] = "🍕 Pizza"
 
-    # ---------- Draw menu ----------
+    # ---------- Draw ----------
     y = 120
     for d in range(1, days + 1):
         label = f"{month_name[:3]} {d:02d}: {menu[d]}"
