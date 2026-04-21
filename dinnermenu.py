@@ -1,12 +1,11 @@
 from PIL import Image, ImageDraw, ImageFont
 import calendar, random, os
-from datetime import date
+from datetime import date, timedelta
 
 # ---------- CONFIG ----------
 WIDTH, HEIGHT = 900, 1200
 YEAR = date.today().year
 MONTH = date.today().month
-TODAY = date.today()
 
 LINE_HEIGHT = 32
 
@@ -31,6 +30,9 @@ MONTH_THEME = {
     5: "spring", 6: "summer", 7: "summer", 8: "summer",
     9: "fall", 10: "fall", 11: "fall", 12: "winter"
 }
+
+# ---------- FIXED START (no drift ever) ----------
+START_DATE = date(2026, 4, 20)  # Pizza day 1 (anchor)
 
 # ---------- Helpers ----------
 def decorate(draw):
@@ -63,29 +65,22 @@ def generate_current_month(folder="images"):
     decorate(draw)
 
     month_name = calendar.month_name[MONTH]
-    draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", 30, TITLE)
+    draw_centered_text(draw, f"{month_name} {date.today().year} Dinner Menu {emoji}", 30, TITLE)
 
-    _, days = calendar.monthrange(YEAR, MONTH)
+    _, days = calendar.monthrange(date.today().year, MONTH)
 
     menu = {}
 
-    # ---------- ALIGNMENT FIX ----------
-    # Force April 21, 2026 to be:
-    # → Pizza (2nd day of pizza block)
+    # ---------- CLEAN PATTERN ----------
+    # Pizza 2 days → Nuggets 2 days → repeat forever
 
-    anchor_day = 21  # April 21
-    target_date = date(2026, 4, 21)
-
-    # compute offset so pattern aligns correctly
-    base_index = (anchor_day - 1)
-    offset = (1 - base_index) % 4
-    # ensures: (d-1+offset) % 4 == 1 on April 21
-
-    # ---------- PATTERN ----------
     for d in range(1, days + 1):
-        x = (d - 1 + offset) % 4
+        current_date = date(date.today().year, MONTH, d)
+        delta_days = (current_date - START_DATE).days
 
-        if x in (0, 1):
+        cycle = (delta_days // 2) % 2
+
+        if cycle == 0:
             menu[d] = "🍕 Pizza"
         else:
             menu[d] = "🍗 Chicken Nuggets"
