@@ -72,18 +72,26 @@ def generate_current_month(folder="images"):
     menu = {}
 
     # ---------- Meal assignment ----------
-    pattern_index = 0  # tracks 2 nuggets / 2 pizza pattern
-
     for d in range(1, days + 1):
 
-        # ----- February 2026 rules -----
-        if YEAR == 2026 and MONTH == 2:
+        # ----- January 2026 rules -----
+        if YEAR == 2026 and MONTH == 1:
+            if d == 29 or d == 30:
+                menu[d] = "🍗 Chicken Nuggets"
+            elif d == 31:
+                menu[d] = "🍕 Pizza"
+            else:
+                chunk = (d - 2) // 2
+                menu[d] = "🍗 Chicken Nuggets" if chunk % 2 == 0 else "🍕 Pizza"
+
+        # ----- February 2026 rules (your custom logic stays) -----
+        elif YEAR == 2026 and MONTH == 2:
+            pattern_index = 0
 
             if d == 1:
                 menu[d] = "🍕 Pizza"
 
             elif d == 2 or d == 3:
-                # normal 2/2 pattern
                 if pattern_index % 4 < 2:
                     menu[d] = "🍗 Chicken Nuggets"
                 else:
@@ -92,40 +100,30 @@ def generate_current_month(folder="images"):
 
             elif d == 4:
                 menu[d] = "🍔 Hamburger"
-                pattern_index = 0  # reset cycle after special
+                pattern_index = 0
 
             elif d == 5 or d == 6:
                 menu[d] = "🍕 Pizza"
-                pattern_index += 2  # counts as first 2 days of 2/2
+                pattern_index += 2
 
             elif d == 7 or d == 8:
                 menu[d] = "🍗 Chicken Nuggets"
-                pattern_index += 2  # counts as next 2 days of 2/2
+                pattern_index += 2
 
             elif d == 9:
-                menu[d] = "🍝 Spaghetti"  # pause, do not advance pattern
-                pattern_index = 2
+                menu[d] = "🍝 Spaghetti"
 
             else:
-                # resume normal 2/2 pattern using pattern_index
-                if pattern_index % 4 < 2:
-                    menu[d] = "🍗 Chicken Nuggets"
-                else:
-                    menu[d] = "🍕 Pizza"
-                pattern_index += 1
+                chunk = (d - 10) // 2
+                menu[d] = "🍗 Chicken Nuggets" if chunk % 2 == 0 else "🍕 Pizza"
 
-        # ----- January 2026 rules -----
-        elif YEAR == 2026 and MONTH == 1:
-            if d == 29 or d == 30:
-                menu[d] = "🍗 Chicken Nuggets"
-            elif d == 31:
+        # ----- Default behavior (ALL OTHER MONTHS) -----
+        else:
+            if d == 1:
                 menu[d] = "🍕 Pizza"
             else:
-                menu[d] = random.choice(["🍕 Pizza", "🍗 Chicken Nuggets"])
-
-        # ----- Default behavior -----
-        else:
-            menu[d] = random.choice(["🍕 Pizza", "🍗 Chicken Nuggets"])
+                chunk = (d - 2) // 2
+                menu[d] = "🍗 Chicken Nuggets" if chunk % 2 == 0 else "🍕 Pizza"
 
     # ---------- Draw menu ----------
     y = 120
