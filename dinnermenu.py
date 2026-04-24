@@ -34,13 +34,13 @@ MONTH_THEME = {
 ANCHOR_DATE = date(2026, 4, 20)  # Pizza
 START_CYCLE_DATE = date(2026, 4, 22)  # pattern begins here
 def get_weather_alert():
-    now = datetime.utcnow() + timedelta(hours=CST_OFFSET)
+    now = date.utcnow() + timedelta(hours=CST_OFFSET)
 
-    start_watch = datetime(2026, 4, 24, 17, 0)
-    end_watch   = datetime(2026, 4, 25, 6, 0)
+    start_watch = date(2026, 4, 24, 17, 0)
+    end_watch   = date(2026, 4, 25, 6, 0)
 
-    start_warn  = datetime(2026, 4, 25, 6, 0)
-    end_warn    = datetime(2026, 4, 25, 18, 0)
+    start_warn  = date(2026, 4, 25, 6, 0)
+    end_warn    = date(2026, 4, 25, 18, 0)
 
     if start_watch <= now < end_watch:
         return {
