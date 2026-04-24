@@ -31,8 +31,8 @@ MONTH_THEME = {
     9: "fall", 10: "fall", 11: "fall", 12: "winter"
 }
 
-# ---------- FIXED PATTERN ANCHOR (DO NOT CHANGE) ----------
-START_CYCLE_DATE = date(2026, 4, 20)  # locked pizza reference
+# ---------- FIXED PATTERN ANCHOR ----------
+START_CYCLE_DATE = date(2026, 4, 20)
 
 # ---------- ALERT SYSTEM ----------
 def get_weather_alert():
@@ -46,13 +46,13 @@ def get_weather_alert():
 
     if start_watch <= now < end_watch:
         return {
-            "text": "⚠️ EXTREME FIRE WATCH (5PM APR 24 – 6AM APR 25)",
+            "text": "EXTREME FIRE WATCH IN EFFECT FROM 5PM APR 24 UNTIL 6AM APR 25 FOR NORTHLAND AND NORTH SHORE",
             "color": (255, 220, 0)
         }
 
     if start_warn <= now < end_warn:
         return {
-            "text": "🚨 EXTREME FIRE WARNING (6AM – 6PM APR 25)",
+            "text": "EXTREME FIRE WARNING IN EFFECT FROM 6AM APR 25 UNTIL 6PM APR 25 FOR NORTHLAND AND NORTH SHORE",
             "color": (255, 140, 0)
         }
 
@@ -87,22 +87,35 @@ def generate_current_month(folder="images"):
     draw = ImageDraw.Draw(img)
     decorate(draw)
 
-    # ---------- ALERT ----------
+    # ---------- ALERT (FIXED FIT VERSION) ----------
     alert = get_weather_alert()
 
     if alert:
         flash = int(time.time()) % 2 == 0
         color = alert["color"] if flash else (255, 255, 255)
 
-        draw.rectangle([0, 0, WIDTH, 80], fill=color)
-        draw_centered_text(draw, alert["text"], 25, BODY)
+        # banner
+        draw.rectangle([0, 0, WIDTH, 110], fill=color)
+
+        # WRAP TEXT so it ALWAYS fits
+        import textwrap
+        lines = textwrap.wrap(alert["text"], width=50)
+
+        y_text = 10
+        for line in lines:
+            w = draw.textlength(line, font=BODY)
+            draw.text(((WIDTH - w) // 2, y_text),
+                      line,
+                      fill="black",
+                      font=BODY)
+            y_text += 28
 
     # ---------- TITLE ----------
-    title_y = 110 if alert else 40
+    title_y = 130 if alert else 40
     month_name = calendar.month_name[MONTH]
     draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", title_y, TITLE)
 
-    # ---------- DAYS ----------
+    # ---------- MENU ----------
     _, days = calendar.monthrange(YEAR, MONTH)
     today = date.today()
 
@@ -111,14 +124,13 @@ def generate_current_month(folder="images"):
     for d in range(1, days + 1):
         current_date = date(YEAR, MONTH, d)
 
-        # 🔁 FIXED PATTERN (never changes)
         delta = (current_date - START_CYCLE_DATE).days
         cycle = (delta // 2) % 2
 
         menu[d] = "🍕 Pizza" if cycle == 0 else "🍗 Chicken Nuggets"
 
     # ---------- DRAW ----------
-    y = title_y + 100
+    y = title_y + 110
 
     for d in range(1, days + 1):
         label = f"{month_name[:3]} {d:02d}: {menu[d]}"
