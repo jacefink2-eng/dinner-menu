@@ -1,13 +1,12 @@
 from PIL import Image, ImageDraw, ImageFont
-import calendar, random, os, time
-from datetime import date, datetime, timedelta
+import calendar, random, os
+from datetime import date
 
 # ---------- CONFIG ----------
 WIDTH, HEIGHT = 900, 1200
 YEAR = date.today().year
 MONTH = date.today().month
 LINE_HEIGHT = 32
-CST_OFFSET = -5  # match weather system
 
 # ---------- Fonts ----------
 try:
@@ -32,31 +31,8 @@ MONTH_THEME = {
 }
 
 # ---------- FIXED RULE ----------
-START_CYCLE_DATE = date(2026, 4, 22)
-
-# ---------- ALERT LOGIC ----------
-def get_weather_alert():
-    now = datetime.utcnow() + timedelta(hours=CST_OFFSET)
-
-    start_watch = datetime(2026, 4, 24, 17, 0)
-    end_watch   = datetime(2026, 4, 25, 6, 0)
-
-    start_warn  = datetime(2026, 4, 25, 6, 0)
-    end_warn    = datetime(2026, 4, 25, 18, 0)
-
-    if start_watch <= now < end_watch:
-        return {
-            "text": "⚠️ PLEASE LOOK AT SLIDE 1: EXTREME FIRE WATCH (5PM APR 24 – 6AM APR 25)",
-            "color": (255, 220, 0)
-        }
-
-    elif start_warn <= now < end_warn:
-        return {
-            "text": "🚨 PLEASE LOOK AT SLIDE 1: EXTREME FIRE WARNING (6AM – 6PM APR 25)",
-            "color": (255, 140, 0)
-        }
-
-    return None
+ANCHOR_DATE = date(2026, 4, 20)  # Pizza
+START_CYCLE_DATE = date(2026, 4, 22)  # pattern begins here
 
 # ---------- Helpers ----------
 def draw_centered_text(draw, text, y, font):
@@ -88,49 +64,37 @@ def generate_current_month(folder="images"):
     draw = ImageDraw.Draw(img)
     decorate(draw)
 
-    # ---------- ALERT ----------
-    alert = get_weather_alert()
-
-    if alert:
-        flash = int(time.time()) % 2 == 0
-        color = alert["color"] if flash else (255, 255, 255)
-
-        draw.rectangle([0, 0, WIDTH, 80], fill=color)
-
-        text_w = draw.textlength(alert["text"], font=BODY)
-        draw.text(((WIDTH - text_w) // 2, 25),
-                  alert["text"],
-                  fill="black",
-                  font=BODY)
-
-    # ---------- TITLE ----------
-    title_y = 100 if alert else 30
     month_name = calendar.month_name[MONTH]
-    draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", title_y, TITLE)
+    draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", 30, TITLE)
 
-    # ---------- MENU ----------
     _, days = calendar.monthrange(YEAR, MONTH)
+
     menu = {}
 
     for d in range(1, days + 1):
         current_date = date(YEAR, MONTH, d)
 
+        # ---------- FORCE FIRST TWO DAYS ----------
         if current_date in [date(2026, 4, 20), date(2026, 4, 21)]:
             menu[d] = "🍕 Pizza"
             continue
 
+        # ---------- BEFORE CYCLE START ----------
         if current_date < START_CYCLE_DATE:
             menu[d] = "🍕 Pizza"
             continue
 
+        # ---------- CLEAN 2-DAY CYCLE ----------
         delta = (current_date - START_CYCLE_DATE).days
         cycle = (delta // 2) % 2
 
-        menu[d] = "🍕 Pizza" if cycle == 0 else "🍗 Chicken Nuggets"
+        if cycle == 0:
+            menu[d] = "🍕 Pizza"
+        else:
+            menu[d] = "🍗 Chicken Nuggets"
 
-    # ---------- DRAW MENU ----------
-    y = title_y + 90
-
+    # ---------- DRAW ----------
+    y = 120
     for d in range(1, days + 1):
         label = f"{month_name[:3]} {d:02d}: {menu[d]}"
         y = draw_wrapped_text(draw, 80, y, label, BODY)
@@ -138,7 +102,7 @@ def generate_current_month(folder="images"):
     # ---------- SAVE ----------
     file_path = os.path.join(folder, "menu.png")
     img.save(file_path)
-    print("Saved:", file_path)
+    print(f"Saved current month image: {file_path}")
 
 # ---------- RUN ----------
 generate_current_month()
