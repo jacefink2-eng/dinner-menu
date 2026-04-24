@@ -46,13 +46,13 @@ def get_weather_alert():
 
     if start_watch <= now < end_watch:
         return {
-            "text": "EXTREME FIRE WATCH IN EFFECT FROM 5PM APR 24 UNTIL 6AM APR 25 FOR NORTHLAND AND NORTH SHORE",
+            "text": "EXTREME FIRE WATCH IN EFFECT FROM 5PM APR 24 UNTIL 6AM APR 25 FOR NORTHLAND AND NORTH SHORE and details: look on slide 1",
             "color": (255, 220, 0)
         }
 
     if start_warn <= now < end_warn:
         return {
-            "text": "EXTREME FIRE WARNING IN EFFECT FROM 6AM APR 25 UNTIL 6PM APR 25 FOR NORTHLAND AND NORTH SHORE",
+            "text": "EXTREME FIRE WARNING IN EFFECT FROM 6AM APR 25 UNTIL 6PM APR 25 FOR NORTHLAND AND NORTH SHORE and details: look on slide 1",
             "color": (255, 140, 0)
         }
 
