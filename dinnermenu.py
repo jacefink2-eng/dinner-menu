@@ -33,7 +33,28 @@ MONTH_THEME = {
 # ---------- FIXED RULE ----------
 ANCHOR_DATE = date(2026, 4, 20)  # Pizza
 START_CYCLE_DATE = date(2026, 4, 22)  # pattern begins here
+def get_weather_alert():
+    now = datetime.utcnow() + timedelta(hours=CST_OFFSET)
 
+    start_watch = datetime(2026, 4, 24, 17, 0)
+    end_watch   = datetime(2026, 4, 25, 6, 0)
+
+    start_warn  = datetime(2026, 4, 25, 6, 0)
+    end_warn    = datetime(2026, 4, 25, 18, 0)
+
+    if start_watch <= now < end_watch:
+        return {
+            "text": "⚠️ PLEASE LOOK AT SLIDE 1: EXTREME FIRE WATCH (5PM APR 24 – 6AM APR 25)",
+            "color": (255, 220, 0)
+        }
+
+    elif start_warn <= now < end_warn:
+        return {
+            "text": "🚨 PLEASE LOOK AT SLIDE 1: EXTREME FIRE WARNING (6AM – 6PM APR 25)",
+            "color": (255, 140, 0)
+        }
+
+    return None
 # ---------- Helpers ----------
 def draw_centered_text(draw, text, y, font):
     w = draw.textlength(text, font=font)
@@ -63,7 +84,20 @@ def generate_current_month(folder="images"):
     img = Image.new("RGB", (WIDTH, HEIGHT), bg_color)
     draw = ImageDraw.Draw(img)
     decorate(draw)
+    alert = get_weather_alert()
 
+    if alert:
+        flash = int(time.time()) % 2 == 0
+        color = alert["color"] if flash else (255, 255, 255)
+
+        draw.rectangle([0, 0, WIDTH, 80], fill=color)
+
+        text_w = draw.textlength(alert["text"], font=BODY)
+        draw.text(((WIDTH - text_w) // 2, 25),
+                  alert["text"],
+                  fill="black",
+                  font=BODY)
+        
     month_name = calendar.month_name[MONTH]
     draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", 30, TITLE)
 
