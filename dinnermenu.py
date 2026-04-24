@@ -7,7 +7,7 @@ WIDTH, HEIGHT = 900, 1200
 YEAR = date.today().year
 MONTH = date.today().month
 LINE_HEIGHT = 32
-
+CST_OFFSET = -5  # match weather system
 # ---------- Fonts ----------
 try:
     TITLE = ImageFont.truetype("DejaVuSans-Bold.ttf", 44)
