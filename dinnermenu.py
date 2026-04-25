@@ -44,6 +44,9 @@ def get_weather_alert():
     start_warn  = datetime(2026, 4, 25, 6, 0)
     end_warn    = datetime(2026, 4, 25, 18, 0)
 
+    start_storm = datetime(2026, 4, 25, 18, 0)
+    end_storm   = datetime(2026, 4, 26, 5, 0)
+
     if start_watch <= now < end_watch:
         return {
             "text": "EXTREME FIRE WATCH IN EFFECT FROM 5PM APR 24 UNTIL 6AM APR 25 FOR NORTHLAND AND NORTH SHORE and details: look on slide 1",
@@ -54,6 +57,12 @@ def get_weather_alert():
         return {
             "text": "EXTREME FIRE WARNING IN EFFECT FROM 6AM APR 25 UNTIL 6PM APR 25 FOR NORTHLAND AND NORTH SHORE and details: look on slide 1",
             "color": (255, 140, 0)
+        }
+
+    if start_storm <= now < end_storm:
+        return {
+            "text": "EXTREME STORM WARNING IN EFFECT FROM 6PM APR 25 UNTIL 5AM APR 26 FOR NORTHLAND AND NORTH SHORE and details: look on slide 1",
+            "color": (255, 0, 0)
         }
 
     return None
