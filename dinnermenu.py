@@ -122,21 +122,23 @@ def generate_current_month(folder="images"):
     month_name = calendar.month_name[MONTH]
     draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", title_y, TITLE)
 
-    # ---------- MENU WITH TODAY OVERRIDE ----------
+    # ---------- MENU WITH FIXED OVERRIDE ----------
     _, days = calendar.monthrange(YEAR, MONTH)
-    today = date.today()
+
+    PAUSE_DATE = date(2026, 8, 20)
+    RESUME_DATE = date(2026, 8, 21)
 
     menu = {}
 
     for d in range(1, days + 1):
         current_date = date(YEAR, MONTH, d)
 
-        # TODAY OVERRIDE — pause cycle
-        if current_date == today:
+        # PAUSE DAY — force Hamburger Helper
+        if current_date == PAUSE_DATE:
             menu[d] = "🍔 Hamburger Helper"
             continue
 
-        # NORMAL CYCLE RESUMES TOMORROW
+        # NORMAL CYCLE (including resume date)
         delta = (current_date - START_CYCLE_DATE).days
         cycle = (delta // 2) % 2
 
@@ -148,7 +150,8 @@ def generate_current_month(folder="images"):
     for d in range(1, days + 1):
         label = f"{month_name[:3]} {d:02d}: {menu[d]}"
 
-        if date(YEAR, MONTH, d) == today:
+        # Highlight PAUSE DATE instead of today
+        if date(YEAR, MONTH, d) == PAUSE_DATE:
             draw.rectangle([70, y-5, 850, y+28], outline="yellow", width=3)
 
         y = draw_wrapped_text(draw, 80, y, label, BODY)
