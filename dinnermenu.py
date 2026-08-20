@@ -103,10 +103,8 @@ def generate_current_month(folder="images"):
         flash = int(time.time()) % 2 == 0
         color = alert["color"] if flash else (255, 255, 255)
 
-        # banner
         draw.rectangle([0, 0, WIDTH, 110], fill=color)
 
-        # WRAP TEXT so it ALWAYS fits
         import textwrap
         lines = textwrap.wrap(alert["text"], width=50)
 
@@ -124,7 +122,7 @@ def generate_current_month(folder="images"):
     month_name = calendar.month_name[MONTH]
     draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", title_y, TITLE)
 
-    # ---------- MENU ----------
+    # ---------- MENU WITH TODAY OVERRIDE ----------
     _, days = calendar.monthrange(YEAR, MONTH)
     today = date.today()
 
@@ -133,6 +131,12 @@ def generate_current_month(folder="images"):
     for d in range(1, days + 1):
         current_date = date(YEAR, MONTH, d)
 
+        # TODAY OVERRIDE — pause cycle
+        if current_date == today:
+            menu[d] = "🍔 Hamburger Helper"
+            continue
+
+        # NORMAL CYCLE RESUMES TOMORROW
         delta = (current_date - START_CYCLE_DATE).days
         cycle = (delta // 2) % 2
 
@@ -144,7 +148,6 @@ def generate_current_month(folder="images"):
     for d in range(1, days + 1):
         label = f"{month_name[:3]} {d:02d}: {menu[d]}"
 
-        # highlight today
         if date(YEAR, MONTH, d) == today:
             draw.rectangle([70, y-5, 850, y+28], outline="yellow", width=3)
 
