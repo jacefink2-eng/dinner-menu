@@ -122,11 +122,11 @@ def generate_current_month(folder="images"):
     month_name = calendar.month_name[MONTH]
     draw_centered_text(draw, f"{month_name} {YEAR} Dinner Menu {emoji}", title_y, TITLE)
 
-    # ---------- MENU WITH FIXED OVERRIDE ----------
+    # ---------- MENU WITH FIXED OVERRIDE + CYCLE RESET ----------
     _, days = calendar.monthrange(YEAR, MONTH)
 
-    PAUSE_DATE = date(2026, 8, 20)
-    RESUME_DATE = date(2026, 8, 21)
+    PAUSE_DATE = date(2026, 8, 20)   # Hamburger Helper day
+    RESET_DATE = date(2026, 8, 21)   # First day of chicken nuggets
 
     menu = {}
 
@@ -138,10 +138,21 @@ def generate_current_month(folder="images"):
             menu[d] = "🍔 Hamburger Helper"
             continue
 
-        # NORMAL CYCLE (including resume date)
+        # RESET DAY — first day of chicken nuggets
+        if current_date == RESET_DATE:
+            menu[d] = "🍗 Chicken Nuggets"
+            continue
+
+        # NORMAL CYCLE AFTER RESET
+        if current_date > RESET_DATE:
+            delta = (current_date - RESET_DATE).days
+            cycle = (delta // 2) % 2
+            menu[d] = "🍗 Chicken Nuggets" if cycle == 0 else "🍕 Pizza"
+            continue
+
+        # NORMAL CYCLE BEFORE RESET (original anchor)
         delta = (current_date - START_CYCLE_DATE).days
         cycle = (delta // 2) % 2
-
         menu[d] = "🍕 Pizza" if cycle == 0 else "🍗 Chicken Nuggets"
 
     # ---------- DRAW ----------
@@ -150,7 +161,7 @@ def generate_current_month(folder="images"):
     for d in range(1, days + 1):
         label = f"{month_name[:3]} {d:02d}: {menu[d]}"
 
-        # Highlight PAUSE DATE instead of today
+        # Highlight PAUSE DATE
         if date(YEAR, MONTH, d) == PAUSE_DATE:
             draw.rectangle([70, y-5, 850, y+28], outline="yellow", width=3)
 
